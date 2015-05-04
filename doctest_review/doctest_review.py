@@ -1,0 +1,4 @@
+#!/bin/python
+
+import doctest
+
