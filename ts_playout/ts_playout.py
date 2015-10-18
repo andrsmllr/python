@@ -14,6 +14,7 @@
 import getopt; # getopt.parse().
 import io; # file.open(), file.read(), file.close().
 import os; # os.exit().
+import signal; # signal.signal(), signal.SIGINT.
 import socket; # socket.socket(), socket.send().
 import struct; # struct.pack().
 import sys; # sys.stderr.write().
@@ -80,8 +81,13 @@ def sync_ts_file(FP):
     except:
         sys.stderr.write("Error synchronizing TS file.");
         raise;
-    finally
+    finally:
         return FP;
+
+# Function to handle exit by Ctrl-C.
+def interrupt_handler(signal, frame):
+    print("\nAborted due to user request.")
+    sys.exit(0)
 
 ##############################################################################
 # Main.
@@ -89,6 +95,9 @@ def sync_ts_file(FP):
 
 if (__name__ == "__main__"):
     
+    # Set interrupt handler for graceful exit on Ctrl-C.
+    signal.signal(signal.SIGINT, interrupt_handler)
+
     print("Starting.")
     
     TsFile = open_ts_file(FILENAME);
