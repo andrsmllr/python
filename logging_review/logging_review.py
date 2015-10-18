@@ -9,7 +9,7 @@ myLogger = logging.getLogger(__name__)
 
 myLogger.info('foo')
 myLogger.warning('bar')
-myLogger.error('gnark'
+myLogger.error('gnark')
 myLogger.critical('flurp')
 myLogger.log(logging.INFO, 'hinks')
 myLogger.exception('teff')
