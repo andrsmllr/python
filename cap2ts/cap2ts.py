@@ -1,4 +1,4 @@
-#!/bin/python
+#!/bin/python3
 ##############################################################################
 # cap2ts.py:
 # cap2ts extracts the MPEG2-TS packet from a Wireshark capture file and stores
@@ -39,7 +39,7 @@ if __name__ == '__main__':
   parser.add_option("-p", "--port", dest="port",
     help="Destination UDP port. Defaults to any.")
   # parser.add_option("-h", "--help", dest="help",
-    # help="Usage: pcap2ts -i ./in.pcap -o ./out.ts -p UDP.")
+    # help="Usage: pcap2ts -o out.ts -d 227.1.2.3 -p 1234 in.cap.")
   
   # Parse command line arguments.
   (options, args) = parser.parse_args()
@@ -51,8 +51,10 @@ if __name__ == '__main__':
     # File extension is used to conclude which capture file format is used.
     file_rd_name, file_rd_ext = os.path.splitext(file_rd)
   else:
-    print("No input file specified as argument, exiting.")
-    sys.exit(2)
+    print("No input file specified, reading from stdin assuming a .cap file.")
+    file_rd_name, file_rd_ext = ('cap2ts', '.cap')
+    # To read binary data from stdin the underlying buffer must be used.
+    fdrd = sys.stdin.buffer
   # if options.input_file:
     # file_rd = options.input_file
   # else:
@@ -61,7 +63,7 @@ if __name__ == '__main__':
   if options.output_file:
     file_wr = options.output_file
   else:
-    print("No output file specified, assuming out.ts.")
+    print("No output file specified, assuming <in file>.ts.")
     file_wr = "./{0}.ts".format(file_rd_name)
   if options.dst_host:
     host = options.dst_host
@@ -89,15 +91,17 @@ if __name__ == '__main__':
     port = PORT_ANY
   
   # Open input file.
-  try: fdrd = open(file_rd, 'br')
-  except Exception as e:
-    print("Could not open input file.")
-    sys.exit(1)
+  if not fdrd:
+    try: fdrd = open(file_rd, 'rb')
+    except Exception as e:
+      print("Could not open input file.")
+      sys.exit(1)
   
   # Open output file.
-  try: fdwr = open(file_wr, 'bw')
+  try: fdwr = open(file_wr, 'wb')
   except Exception as e:
     print("Could not open output file.")
+    print(e)
     sys.exit(1)
   
   # Read global header depending on file extension.
@@ -196,4 +200,6 @@ if __name__ == '__main__':
     fdrd.close()
   if not fdwr.closed:
     fdwr.close()
+  
+  print("Done.")
   
